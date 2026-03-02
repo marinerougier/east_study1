@@ -1,0 +1,817 @@
+<!-- 
+DESCRIPTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>exp</title>
+  <script src="jsPsych-6.1.0/jspsych.js"></script>
+  <script src="jsPsych-6.1.0/plugins/jspsych-fullscreen.js"></script>
+  <script src="jsPsych-6.1.0/plugins/jspsych-html-keyboard-response.js"></script>
+  <script src="jsPsych-6.1.0/plugins/jspsych-html-button-response.js"></script>
+  <script src="jsPsych-6.1.0/plugins/jspsych-survey-text.js"></script>
+  <script src="jsPsych-6.1.0/plugins/jspsych-survey-likert.js"></script>
+  <script src="jsPsych-6.1.0/plugins/jspsych-survey-multi-choice.js"></script>
+  <script src="jsPsych-6.1.0/plugins/jspsych-external-html.js"></script>
+  <script src="js/jspsych-html-slider-response_required.js"></script>
+  <script src="js/jquery.min.js"></script>
+  <script src="js/lodash.min.js"></script>
+  <script src="js/firebase.js"></script>
+  <link href="jsPsych-6.1.0/css/jspsych.css" rel="stylesheet" type="text/css">
+<style>
+  body { cursor: default; }
+  #jspsych-html-slider-response-next { margin: 0px; }
+
+  /* IMPORTANT: ne pas mettre height:10000px, sinon le contenu peut partir hors écran */
+  .jspsych-content-wrapper{
+    width: 70%;
+    max-width: 1000px;
+    height: auto !important;
+    min-height: 100vh;
+  }
+
+  /* Fond noir UNIQUEMENT pendant l’EAST */
+  body.east-black,
+  body.east-black #jspsych-target,
+  body.east-black .jspsych-display-element,
+  body.east-black #jspsych-content,
+  body.east-black .jspsych-content-wrapper {
+    background: black !important;
+    color: white !important;
+  }
+</style>
+</style>
+</head>
+<body></body>
+<script>
+
+  //width: 900px; 
+
+  /* Initial variables */
+  var timeline = [];
+  var preloadimages = [];
+  var prolificID = jsPsych.data.getURLVariable("PROLIFIC_PID");
+
+  // List of traits
+  var List_traits = [
+					"sociable",
+					"fun-loving",
+					"likable",
+					"popular",
+					"intelligent",
+					"skillful",
+					"rational",
+					"scientific",
+					"ambitious",
+					"hard-working",
+					"likely to receive good grade",
+					"likely to achieve career success",
+					"sensitive",
+					"empathic",
+					"compassionate",
+					"generous",
+					"modest",
+					"egoistic",
+					"trustworthy",
+					"honest",
+					"likely to be faithful to the spouse",
+					"normal",
+					"well-adjusted",
+					"satisfied",
+					"happy",
+					"confident",
+					"likely to have a positive self-regard",
+					"mature",
+					"healthy",
+					"strong",
+					"self-assertive",
+					"dominant",
+					"likely to act as a leader",
+					"vain",
+					"elitist",
+					"snobbish",
+					"shallow",
+					"humble",
+					"materialistic",
+					"pompous",
+					"prudish",
+					"boastful"
+  ];
+
+
+var List_attractive = [
+  "attractive",
+  "good-looking",
+  "beautiful",
+  "handsome",
+  "pretty",
+  "cute",
+  "gorgeous",
+  "stunning",
+  "well-featured",
+  "striking"
+];
+
+var List_unattractive = [
+  "unattractive",
+  "plain",
+  "unappealing",
+  "repulsive",
+  "harsh-looking",
+  "grotesque",
+  "homely",
+  "inelegant",
+  "unsightly",
+  "hideous"
+];
+
+ 
+  // EXPERIMENT --------------------------------------------------------------------------------------------------------
+
+  /* FULL SCREEN MODE */
+  var activeFullscreen = {
+    message: "",
+    button_label: "To start the study, please switch to fullscreen",
+    type: 'fullscreen',
+    fullscreen_mode: true,
+    delay_after: 200,
+  };
+
+// Consent
+var check_consent = function(elem) {
+  if (document.getElementById('info').checked 
+    & document.getElementById('volunt').checked 
+    & document.getElementById('anony').checked 
+    & document.getElementById('end').checked 
+    & document.getElementById('consqc').checked 
+    & document.getElementById('summ').checked 
+    & document.getElementById('participate').checked ) {
+    return true;
+  }
+  else {
+    alert("If you wish to participate, you must check all the boxes.");
+    return false;
+  }
+  return false;
+};
+
+
+var consent = {
+  type:'external-html',
+  url: "https://marinerougier.github.io/Ugent_1/external_page_consent.html",
+  cont_btn: "start",
+  check_fn: check_consent
+};
+
+  /* General INSTRUCTIONS */
+var Instr_gene1 = {
+  type: "html-keyboard-response",
+  post_trial_gap: 300,
+  choices: [32],
+  stimulus: function() {
+    var html = "";
+    html += "<h1>Study on Group Perception</h1>";
+    html += "<p class='justify'>In everyday life, people often perceive members of some social groups as more similar to each other than other group members. ";
+    html += "For example, people might see <b>Spaniards</b> and <b>Italians</b> as relatively similar, ";
+    html += "whereas they might see <b>vegetarians</b> and <b>heavy metal fans</b> as more different.<br><br>";
+    html += "Group members can be perceived as similar for many different reasons. ";
+    html += "They may be seen as having similar personalities, similar behaviors, similar physical characteristics, ";
+    html += "similar lifestyles, similar interests, or similar values.<br><br>";
+    html += "In this study, <b>we are interested in how similar or different members of social groups seem to you overall (i.e., their overall similarity).</b></p>";
+    html += "<p><br>Press <span class='light-keys'><kbd>space</kbd></span> to continue</p>";
+    return html;
+  },
+};
+
+  /* JUDGMENTS INSTRUCTIONS */
+var Instr_gene2 = {
+  type: "html-keyboard-response",
+  post_trial_gap: 300,
+  choices: [32],
+  stimulus: function() {
+    var html = "";
+    html += "<h1>Study on Group Perception</h1>";
+    html += "<p class='justify'>Your task is to indicate to what extent you think that <b>individuals that belong to a given social group (e.g., vegetarians) are similar to individuals that belong to another social group (e.g., heavy metal fans).</b> You will have to evaluate a <b>total of 50 group pairs. </b><br><br>";
+    html += "When making your judgment, try to think in terms of their overall similarity.<br><br>";
+    html += "For each pair, you will use a scale from <b>1 (not at all similar)</b> to <b>7 (totally similar)</b>.<br><br>";
+    html += "Please rely on your first impression and respond as honestly and spontaneously as possible. ";
+    html += "There are no correct or incorrect answers, we are interested in your genuine opinion.</p>";
+    html += "<p><br>Press <span class='light-keys'><kbd>space</kbd></span> to begin</p>";
+    return html;
+  },
+};
+
+ 
+
+/* =========================================================
+   Extrinsic Affective Simon Task (EAST) — FULL SCRIPT (robust loop)
+
+   Procedure (as requested):
+   - Fixation cross (“+”, white) for 500 ms
+   - Word stays until a correct response is given:
+       * participant responds
+       * if incorrect: show same word + red X underneath
+         and require correct response to continue
+         (implemented as a repeat loop until correct)
+   - Inter-trial interval (blank) for 1500 ms
+
+   Data saving:
+   - Every keypress attempt is saved as its own row.
+     * phase="trial" for the first presentation
+     * phase="correction" for subsequent repetitions after an error
+   - correct = TRUE/FALSE on each attempt
+   - This is ideal for scoring later in R.
+
+   IMPORTANT FIX:
+   - We avoid conditional timelines for correction
+   - We use a loop_function that repeats until correct
+   ========================================================= */
+
+
+/* =========================
+   SETTINGS
+   ========================= */
+var EAST_KEYS = { left: 'f', right: 'j' };
+var EAST_COLORS = { blue: '#1e5bff', green: '#16a34a' };
+
+// Must be null to keep stimulus until response
+var EAST_DEADLINE = null;
+
+function shuffle(a){ return jsPsych.randomization.shuffle(a); }
+
+
+/* =========================
+   BACKGROUND (EAST only)
+   ========================= */
+var east_bg_on = {
+  type: "html-keyboard-response",
+  stimulus: "",
+  choices: jsPsych.NO_KEYS,
+  trial_duration: 1,
+  on_start: function(){ document.body.classList.add("east-black"); },
+  data: { task: "EAST", phase: "bg_on" }
+};
+
+var east_bg_off = {
+  type: "html-keyboard-response",
+  stimulus: "",
+  choices: jsPsych.NO_KEYS,
+  trial_duration: 1,
+  on_start: function(){ document.body.classList.remove("east-black"); },
+  data: { task: "EAST", phase: "bg_off" }
+};
+
+
+/* =========================
+   COUNTERBALANCING
+   ========================= */
+var mapping = jsPsych.randomization.sampleWithoutReplacement([0,1], 1)[0];
+// mapping=0: Attractive=left, Unattractive=right
+// mapping=1: Attractive=right, Unattractive=left
+var ATTR_KEY   = (mapping === 0) ? EAST_KEYS.left : EAST_KEYS.right;
+var UNATTR_KEY = (mapping === 0) ? EAST_KEYS.right : EAST_KEYS.left;
+
+// Color mapping fixed: blue=left, green=right
+var BLUE_KEY  = EAST_KEYS.left;
+var GREEN_KEY = EAST_KEYS.right;
+
+function isCongruent(colorName){
+  var ck = (colorName === "blue") ? BLUE_KEY : GREEN_KEY;
+  return jsPsych.pluginAPI.compareKeys(ck, ATTR_KEY);
+}
+
+// Save mapping once for later scoring in R
+jsPsych.data.addProperties({
+  EAST_left_key: EAST_KEYS.left,
+  EAST_right_key: EAST_KEYS.right,
+  EAST_attr_key: ATTR_KEY,
+  EAST_unattr_key: UNATTR_KEY,
+  EAST_blue_key: BLUE_KEY,
+  EAST_green_key: GREEN_KEY,
+  EAST_mapping: mapping
+});
+
+
+/* =========================
+   STIMULI
+   ========================= */
+var names = [];
+List_attractive.forEach(function(w){
+  names.push({ word: w, category: "attractive", correct_key: ATTR_KEY });
+});
+List_unattractive.forEach(function(w){
+  names.push({ word: w, category: "unattractive", correct_key: UNATTR_KEY });
+});
+
+var traits = List_traits.slice(); // ALL traits
+var N_TRAITS = traits.length;
+
+
+/* =========================
+   DISPLAY HELPERS
+   ========================= */
+function stimHTML(word, colorHex){
+  var style = colorHex ? ("color:" + colorHex + ";") : "color:white;";
+  return "<div style='font-size:56px; font-weight:600; " + style + " letter-spacing:0.5px;'>" + word + "</div>";
+}
+
+function stimHTML_withError(word, colorHex){
+  var style = colorHex ? ("color:" + colorHex + ";") : "color:white;";
+  return (
+    "<div style='display:flex; flex-direction:column; align-items:center;'>" +
+      "<div style='font-size:56px; font-weight:600; " + style + " letter-spacing:0.5px;'>" + word + "</div>" +
+      "<div style='margin-top:14px; font-size:48px; color:#ff2b2b; font-weight:800;'>✕</div>" +
+    "</div>"
+  );
+}
+
+function introHTML(title, body){
+  return (
+    "<div style='width:900px; text-align:left;'>" +
+      "<h2 style='margin-bottom:10px;'>" + title + "</h2>" +
+      "<p style='font-size:18px; line-height:1.4;'>" + body + "</p>" +
+      "<p style='margin-top:18px;'>Press <kbd>space</kbd> to continue.</p>" +
+    "</div>"
+  );
+}
+
+
+/* =========================
+   TIMING ELEMENTS
+   ========================= */
+var fix = {
+  type: "html-keyboard-response",
+  stimulus: "<div style='font-size:48px; color:white;'>+</div>",
+  choices: jsPsych.NO_KEYS,
+  trial_duration: 500,
+  data: { task: "EAST", phase: "fix" }
+};
+
+var iti = {
+  type: "html-keyboard-response",
+  stimulus: "",
+  choices: jsPsych.NO_KEYS,
+  trial_duration: 1500,
+  data: { task: "EAST", phase: "iti" }
+};
+
+
+/* =========================
+   CORE: respond-until-correct via LOOP (robust)
+   =========================
+   Each stimulus becomes:
+   [fix] -> [looped response trial until correct] -> [iti]
+
+   After the first error, the red X is displayed on subsequent repeats.
+*/
+function buildEASTSequence(params){
+  // Local state (closure): whether we should show the red X now
+  var show_error = false;
+
+  // This is the "one screen" repeated until correct
+  var response_trial = {
+    type: "html-keyboard-response",
+    choices: [EAST_KEYS.left, EAST_KEYS.right],
+    trial_duration: EAST_DEADLINE, // null => until response
+    stimulus: function(){
+      return show_error ? params.errorHTML : params.stimulusHTML;
+    },
+    data: function(){
+      return Object.assign({}, params.dataBase, {
+        // First time = trial, later repeats = correction
+        phase: show_error ? "correction" : "trial",
+        correct_key: params.correct_key
+      });
+    },
+    on_finish: function(d){
+      // Robust key comparison (handles keycodes vs letters)
+      d.correct = jsPsych.pluginAPI.compareKeys(d.response, params.correct_key);
+      d.timed_out = false;
+
+      // If incorrect, we turn on the error display for the next repeat
+      if(!d.correct){
+        show_error = true;
+      }
+    }
+  };
+
+  // Loop wrapper: repeat response_trial until last response was correct
+  var loop_until_correct = {
+    timeline: [response_trial],
+    loop_function: function(data){
+      var last = data.values()[data.values().length - 1];
+      return last && last.correct === false; // repeat if incorrect
+    }
+  };
+
+  return [fix, loop_until_correct, iti];
+}
+
+
+// White-word sequence (Attractive/Unattractive)
+function nameSequence(stim, blockLabel){
+  return buildEASTSequence({
+    stimulusHTML: stimHTML(stim.word, null),
+    errorHTML: stimHTML_withError(stim.word, null),
+    correct_key: stim.correct_key,
+    dataBase: {
+      task: "EAST",
+      block: blockLabel,
+      stim_type: "name",
+      word: stim.word,
+      category: stim.category,
+      color: "white",
+      congruent: null
+    }
+  });
+}
+
+// Colored trait sequence (Blue/Green)
+function traitSequence(word, colorName, blockLabel){
+  var colorHex = (colorName === "blue") ? EAST_COLORS.blue : EAST_COLORS.green;
+  var correct_key = (colorName === "blue") ? BLUE_KEY : GREEN_KEY;
+
+  return buildEASTSequence({
+    stimulusHTML: stimHTML(word, colorHex),
+    errorHTML: stimHTML_withError(word, colorHex),
+    correct_key: correct_key,
+    dataBase: {
+      task: "EAST",
+      block: blockLabel,
+      stim_type: "trait",
+      word: word,
+      category: null,
+      color: colorName,
+      congruent: isCongruent(colorName)
+    }
+  });
+}
+
+
+/* =========================
+   INSTRUCTIONS (updated)
+   ========================= */
+var east_intro = {
+  type: "html-keyboard-response",
+  choices: [32],
+  stimulus: introHTML(
+    "Word task",
+    "In this task, respond as quickly and accurately as possible using two keys:<br>" +
+    "• Left: <kbd>" + EAST_KEYS.left.toUpperCase() + "</kbd><br>" +
+    "• Right: <kbd>" + EAST_KEYS.right.toUpperCase() + "</kbd><br><br>" +
+    "<b>Important:</b> The word will stay on the screen until you respond correctly. " +
+    "If you press the wrong key, a red <b>X</b> will appear under the word. " +
+    "You must then press the <b>correct</b> key to continue."
+  ),
+  data: { task:"EAST", phase:"intro" }
+};
+
+var instr_block1 = {
+  type: "html-keyboard-response",
+  choices: [32],
+  stimulus: function(){
+    return introHTML(
+      "Block 1: Category judgments",
+      "Words appear in <b>white</b>.<br><br>" +
+      "• <b>Attractive</b>: <kbd>" + ATTR_KEY.toUpperCase() + "</kbd><br>" +
+      "• <b>Unattractive</b>: <kbd>" + UNATTR_KEY.toUpperCase() + "</kbd><br><br>" +
+      "If you make a mistake, a red <b>X</b> will appear and you must correct your response before moving on."
+    );
+  },
+  data: { task:"EAST", phase:"instr_block1" }
+};
+
+var instr_block2 = {
+  type: "html-keyboard-response",
+  choices: [32],
+  stimulus: function(){
+    return introHTML(
+      "Block 2: Color judgments",
+      "Words appear in <b>blue</b> or <b>green</b>.<br>" +
+      "Ignore meaning; respond to <b>color</b>:<br><br>" +
+      "• <span style='color:" + EAST_COLORS.blue + "; font-weight:700;'>Blue</span>: <kbd>" + BLUE_KEY.toUpperCase() + "</kbd><br>" +
+      "• <span style='color:" + EAST_COLORS.green + "; font-weight:700;'>Green</span>: <kbd>" + GREEN_KEY.toUpperCase() + "</kbd><br><br>" +
+      "If you make a mistake, a red <b>X</b> will appear and you must correct your response before moving on."
+    );
+  },
+  data: { task:"EAST", phase:"instr_block2" }
+};
+
+var instr_block3 = {
+  type: "html-keyboard-response",
+  choices: [32],
+  stimulus: function(){
+    return introHTML(
+      "Block 3: Mixed judgments",
+      "Tasks are mixed:<br><br>" +
+      "• <b>White</b> → Attractive vs Unattractive (same keys as Block 1)<br>" +
+      "• <b>Blue/Green</b> → respond to color (same keys as Block 2)<br><br>" +
+      "First 20 trials are practice.<br><br>" +
+      "<b>Important:</b> The word will stay on the screen until you respond correctly. " +
+      "If you press the wrong key, a red <b>X</b> will appear and you must correct your response to continue."
+    );
+  },
+  data: { task:"EAST", phase:"instr_block3" }
+};
+
+
+/* =========================
+   BUILD BLOCKS
+   ========================= */
+
+// Block 1: all name words once
+var b1 = [];
+shuffle(names).forEach(function(st){
+  b1.push(nameSequence(st, "b1_names"));
+});
+b1 = _.flattenDeep(b1);
+
+// Block 2: all traits once, balanced colors
+var colors = [];
+var nBlue = Math.ceil(N_TRAITS/2);
+var nGreen = N_TRAITS - nBlue;
+for(var i=0;i<nBlue;i++) colors.push("blue");
+for(var j=0;j<nGreen;j++) colors.push("green");
+colors = shuffle(colors);
+
+var b2 = [];
+var traits_shuf = shuffle(traits.slice());
+for(var t=0; t<N_TRAITS; t++){
+  b2.push(traitSequence(traits_shuf[t], colors[t], "b2_colors"));
+}
+b2 = _.flattenDeep(b2);
+
+// Block 3 practice: 20 mixed trials (tries 10 names + 10 traits)
+var practiceN = 20;
+var pNamesN = Math.min(10, names.length);
+var pTraitsN = Math.min(practiceN - pNamesN, N_TRAITS);
+
+var practice_items = [];
+shuffle(names.slice()).slice(0, pNamesN).forEach(function(st){
+  practice_items.push({type:"name", stim: st});
+});
+shuffle(traits.slice()).slice(0, pTraitsN).forEach(function(w){
+  practice_items.push({type:"trait", word: w, color: (Math.random()<0.5 ? "blue":"green")});
+});
+
+// Fill to 20 if needed (can repeat names in practice)
+while(practice_items.length < practiceN){
+  practice_items.push({type:"name", stim: names[practice_items.length % names.length]});
+}
+practice_items = shuffle(practice_items);
+
+var b3_practice = [];
+practice_items.forEach(function(it){
+  if(it.type === "name"){
+    b3_practice.push(nameSequence(it.stim, "b3_practice"));
+  } else {
+    b3_practice.push(traitSequence(it.word, it.color, "b3_practice"));
+  }
+});
+b3_practice = _.flattenDeep(b3_practice);
+
+// Block 3 test (as in article): traits twice (blue+green) + each name twice, mixed
+var b3_test_pairs = [];
+var test_items = [];
+
+traits.forEach(function(w){
+  test_items.push({ stim_type: "trait", word: w, color: "blue" });
+  test_items.push({ stim_type: "trait", word: w, color: "green" });
+});
+
+names.forEach(function(st){
+  test_items.push({ stim_type: "name", stim: st });
+  test_items.push({ stim_type: "name", stim: st });
+});
+
+test_items = shuffle(test_items);
+
+test_items.forEach(function(it){
+  if(it.stim_type === "trait"){
+    b3_test_pairs.push(traitSequence(it.word, it.color, "b3_test"));
+  } else {
+    b3_test_pairs.push(nameSequence(it.stim, "b3_test"));
+  }
+});
+
+var b3_test = _.flattenDeep(b3_test_pairs);
+
+
+/* =========================
+   EAST TIMELINE
+   ========================= */
+var east_timeline = [];
+east_timeline.push(east_bg_on);
+
+east_timeline.push(east_intro);
+
+east_timeline.push(instr_block1);
+east_timeline = east_timeline.concat(b1);
+
+east_timeline.push(instr_block2);
+east_timeline = east_timeline.concat(b2);
+
+east_timeline.push(instr_block3);
+east_timeline = east_timeline.concat(b3_practice);
+east_timeline = east_timeline.concat(b3_test);
+
+east_timeline.push({
+  type: "html-keyboard-response",
+  choices: [32],
+  stimulus: introHTML("End of word task", "You have completed the word task."),
+  data: { task:"EAST", phase:"end" }
+});
+
+east_timeline.push(east_bg_off);
+
+
+
+
+
+
+
+
+
+
+
+  /* DEMOGRAPHICS */
+  var age = {
+      timeline: [{
+        type: 'survey-text',
+        questions: [{prompt: "How old are you?", rows: 1, columns: 10}],
+        button_label: "Continue",
+      }],
+      on_load: function() {
+          window.scrollTo(0, 0);
+          $(".jspsych-content").css("margin-top", "200px");
+          $(".jspsych-content").css("max-width", "90%");
+        },
+      loop_function: function(data){ 
+        var age = data.values()[0].responses;
+        var age = JSON.parse(age).Q0; 
+        if(age == ""){
+          alert("Please indicate your age"); 
+          return true; 
+        }
+      },
+      on_finish: function(data) {
+          jsPsych.data.addProperties({
+              age: JSON.parse(data.responses)["Q0"],
+          });
+      },
+  };
+
+  var gender = {
+      type: 'survey-multi-choice',
+      questions: [{prompt: "Please indicate your gender:", options: ['Male', 'Female', 'Other'], required: true}],
+      button_label: "Continue",
+      on_finish: function(data) {
+          jsPsych.data.addProperties({
+              gender: JSON.parse(data.responses)["Q0"],
+          });
+      },
+  };
+
+  var languageOptions = ['Native speaker', 'Very well', 'Well', 'Average', 'Badly', 'Very badly'];
+  var language = {
+        type: 'survey-multi-choice',
+        questions: [{ prompt: "How well do you speak english?", options: languageOptions, required: true }],
+        button_label: "continue",
+        on_finish: function (data) {
+            jsPsych.data.addProperties({
+                language: JSON.parse(data.responses).Q0,
+            });
+            console.log(data);
+        },
+    };
+
+  var Prolific_reported = {
+        timeline: [{
+            type: 'survey-text',
+            questions: [{ prompt: 'Please indicate your Prolific ID:', rows: 3, columns: 60 }],
+            button_label: "continue",
+        }],
+        loop_function: function (data) {
+            var res = data.values()[0].responses;
+            var res = JSON.parse(res).Q0;
+            if (res == "") {
+                alert("Please answer the question");
+                return true;
+            }
+        },
+        on_finish: function (data) {
+            jsPsych.data.addProperties({
+                Prolific_reported: JSON.parse(data.responses).Q0,
+            });
+        },
+    };
+
+  var comments = {
+        timeline: [{
+            type: 'survey-text',
+            questions: [{ prompt: 'Do you have comments regarding this study? [Optional]', rows: 3, columns: 60 }],
+            button_label: "continue",
+        }],
+        on_finish: function (data) {
+            jsPsych.data.addProperties({
+                Comment: JSON.parse(data.responses).Q0,
+            });
+        },
+    };
+
+
+  /* EXIT FULLSCREEN MODE */
+  var exitFullscreen = {
+    type: 'fullscreen',
+    fullscreen_mode: false
+  };
+
+/* DEBRIEF */
+var debrief = [];
+debrief += "<h1>End of the study</h1>";
+debrief += "<p class='justify'>Thank you for participating in this study.<br><br>";
+debrief += "In this experiment, we asked you to judge how similar different social groups seem to you. ";
+debrief += "The goal of this research is to better understand how people mentally represent social groups, ";
+debrief += "and how they perceive similarities and differences between them.<br><br>";
+debrief += "More specifically, we are interested in the structure of social perception — that is, ";
+debrief += "whether certain groups are spontaneously perceived as closer to one another, ";
+debrief += "while others are perceived as more distinct. By collecting many people's judgments, ";
+debrief += "we can examine general patterns in how social categories are mentally organized.<br><br>";
+debrief += "At the beginning of the study, we did not fully explain this objective. ";
+debrief += "This is because knowing the precise research question can sometimes influence ";
+debrief += "participants' responses. To ensure that judgments reflect natural impressions, ";
+debrief += "we provided only general information at first.<br><br>";
+debrief += "There were no correct or incorrect answers in this task. ";
+debrief += "We were interested in your spontaneous perceptions. ";
+debrief += "Your responses are completely anonymous and will be analyzed together with those of other participants.<br><br>";
+debrief += "If you have any questions about this research, or if you would like your data to be withdrawn, ";
+debrief += "please contact us via Prolific. You may also request a summary of the results once the study is complete ";
+debrief += "(please note that data collection and analysis may take several weeks).<br><br>";
+debrief += "To validate your participation on Prolific, please use the completion code below.<br><br>";
+debrief += "Completion code: <b>CLJXJHVA</b><br><br>";
+debrief += "<a href='https://app.prolific.com/submissions/complete?cc=CLJXJHVA' target='_blank'>Click here to complete your submission</a></p>";
+
+
+
+  // TIMELINE ----------------------------------------------------------------------------------------------------------
+  //timeline.push(consent);
+  timeline.push(activeFullscreen);
+  timeline.push(Instr_gene1);
+  timeline.push(east_timeline);
+  timeline.push(age);
+  timeline.push(gender);
+  timeline.push(language);
+  timeline.push(Prolific_reported);
+  timeline.push(comments);
+  timeline.push(exitFullscreen);
+  
+  timeline = _.flattenDeep(timeline); // do not remove this!
+
+  // INITIALISE EXP ----------------------------------------------------------------------------------------------------
+  jsPsych.init({
+    timeline: timeline,
+    preload_images: preloadimages,
+    max_load_time: 500*1000,
+    exclusions: {
+      //min_width: 1100,
+      //min_height: 600,
+      //max_width: 1600,
+      //max_height: 900,
+    },
+    on_finish: function(data) { 
+      $("#jspsych-content").html("<img src='https://i.gifer.com/4V0b.gif'>");
+
+      /* Initialize Firebase */
+      var config = {
+        apiKey: "AIzaSyAPTEPrT8V9T1-GouWXnW6jknK3brmagJs",
+        databaseURL: "https://postdocgent.firebaseio.com/"
+      };
+
+      firebase.initializeApp(config);
+      var database = firebase.database();
+      id = jsPsych.randomization.randomID(15); // short ID
+
+      /* jsPsych: add data to every trial */
+      jsPsych.data.addProperties({
+        prolificID: prolificID,
+        id: id,
+        totalTime: jsPsych.totalTime()
+      });
+
+      var subdata = data.filter({trial_type: 'survey-likert'}).csv();
+    //   jsPsych.data.displayData();
+
+      /* Send data to Firebase and redirect to Qualtrics */
+      database.ref("GroupSimilarity/" + id + "/").update({subdata}).then(function() { 
+        console.log("data sent!");
+        $("#jspsych-content").html(debrief);
+        //window.location = qlink; // redirect to qualtrics
+      });
+    }
+  });
+</script>
+
+</html>
