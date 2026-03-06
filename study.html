@@ -584,7 +584,7 @@
     choices: [32],
     stimulus: function(){
       var nPractice = practiceN;
-      var nTest = 126;
+      var nTest = 76;
       var nTotal = nPractice + nTest;
 
       return introHTML(
@@ -661,9 +661,8 @@
     test_items.push({ stim_type: "trait", word: w, color: "green" });
     test_items.push({ stim_type: "trait", word: w, color: "green" });
   });
-  /* Category words: each word three times */
+  /* Category words: each word two times */
   names.forEach(function(st){
-    test_items.push({ stim_type: "name", stim: st });
     test_items.push({ stim_type: "name", stim: st });
     test_items.push({ stim_type: "name", stim: st });
   });
