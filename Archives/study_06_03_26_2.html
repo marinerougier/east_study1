@@ -485,16 +485,16 @@
   }
   function footerForBlock2(){
     setEastFooterLabels(
-      footerHTML("E", "Press E for <b>Blue words</b>"),
-      footerHTML("I", "Press I for <b>Green words</b>")
+      footerHTML("E", "Press E for <b><span style='color:"+EAST_COLORS.blue+";'>Blue</span> words</b>"),
+      footerHTML("I", "Press I for <b><span style='color:"+EAST_COLORS.green+";'>Green</span> words</b>")
     );
   }
   function footerForBlock3(){
     var eCat = (ATTR_KEYCODE === EAST_KEYCODES.left) ? "Attractive" : "Unattractive";
     var iCat = (ATTR_KEYCODE === EAST_KEYCODES.left) ? "Unattractive" : "Attractive";
     setEastFooterLabels(
-      footerHTML("E", "<b>" + eCat + "</b> words / <b>Blue words</b>"),
-      footerHTML("I", "<b>" + iCat + "</b> words / <b>Green words</b>")
+      footerHTML("E", "<b>" + eCat + "</b> words / <b><span style='color:"+EAST_COLORS.blue+";'>Blue</span> words</b>"),
+      footerHTML("I", "<b>" + iCat + "</b> words / <b><span style='color:"+EAST_COLORS.green+";'>Green</span> words</b>")
     );
   }
 
