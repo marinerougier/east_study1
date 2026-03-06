@@ -544,7 +544,7 @@
     type: "html-keyboard-response",
     choices: [32],
     stimulus: function(){
-      var nTrials = names.length;
+      var nTrials = names.length * 2;
       var attrLetter   = (ATTR_KEYCODE === EAST_KEYCODES.left) ? "E" : "I";
       var unattrLetter = (UNATTR_KEYCODE === EAST_KEYCODES.left) ? "E" : "I";
       return introHTML(
@@ -563,7 +563,7 @@
     type: "html-keyboard-response",
     choices: [32],
     stimulus: function(){
-      var nTrials = N_TRAITS;
+      var nTrials = N_TRAITS * 2;
       return introHTML(
         "<center>Block 2: Color judgments</center>",
         "In this block, words will appear in <b>blue</b> or <b>green</b>.<br>" +
@@ -622,10 +622,11 @@
 
   var b2 = [];
   var traits_shuf = shuffle(traits.slice());
-  for(var t=0; t<N_TRAITS; t++){
-    b2.push([fix, traitTrial(traits_shuf[t], colors[t], "b2_colors"), iti]);
-  }
-  b2 = _.flattenDeep(b2);
+  traits_shuf.forEach(function(w){
+    b2.push([fix, traitTrial(w, "blue", "b2_colors"), iti]);
+    b2.push([fix, traitTrial(w, "green", "b2_colors"), iti]);
+  });
+  b2 = _.flattenDeep(shuffle(b2));
 
   var pNamesN = Math.min(10, names.length);
   var pTraitsN = Math.min(practiceN - pNamesN, N_TRAITS);
